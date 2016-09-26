@@ -12,18 +12,18 @@ public class BooksAndBits_Before_Test extends BooksAndBits_Test {
     }
 
     @Override
-    protected Iterable<String> booksOf(String reader) {
+    protected Iterable<String> booksReadBy(String reader) {
         return booksAndBits.getBooksOfReader(reader);
     }
 
     @Override
-    protected void addReaderBookRating(String reader, String book, int rating) {
+    protected void addBookRating(String reader, String book, int rating) {
         booksAndBits.addReaderBookRating(reader, book, rating);
     }
 
     @Override
-    protected Iterable<String> findBooksAndRatings(String book) {
-        return booksAndBits.findBooksAndRatings(book);
+    protected Iterable<String> findBooksWithTitleMatching(String bookTitleFragment) {
+        return booksAndBits.findBooksAndRatings(bookTitleFragment);
     }
 
     @Override

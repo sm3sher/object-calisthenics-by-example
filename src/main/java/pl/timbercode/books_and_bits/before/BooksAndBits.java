@@ -12,12 +12,13 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-// FIXME Rule 7. Keep All Entities Small (84 lines - 19 FIXME comments = 65 lines > max 50 lines allowed)
+// FIXME Rule 7. Keep All Entities Small (86 lines - 19 FIXME comments - 1 @SuppressWarnings = 66 lines > max 50 lines allowed)
 // FIXME Rule 3. Wrap All Primitives And Strings
+@SuppressWarnings("WeakerAccess")
 class BooksAndBits {
 
     // FIXME Rule 4. First Class Collections
-    private Map<String, Set<Book>> books = new HashMap<>();
+    private final Map<String, Set<Book>> books = new HashMap<>();
 
     // FIXME Rule 3. Wrap All Primitives And Strings
     void registerReader(String reader) {
@@ -50,13 +51,13 @@ class BooksAndBits {
                                                 .findAny();
             // FIXME Rule 1. Only One Level Of Indentation Per Method
             if (existingBook.isPresent()) {
-                // FIXME Rule 5. One Dot Per Line
                 existingBook.get().setRating(rating);
             } else {
                 // FIXME Rule 2. Don’t Use The ELSE Keyword
                 books2.add(new Book(bookTitle, rating));
             }
         } else {
+            // FIXME Rule 2. Don’t Use The ELSE Keyword
             throw new ReaderNotFoundException(reader);
         }
     }
@@ -76,6 +77,7 @@ class BooksAndBits {
             results.addAll(foundBooks);
         }
         return results.stream()
+                      .sorted()
                       // FIXME Rule 6. Don’t Abbreviate
                       .map(r -> format("%s: %s [%s/5]", r.getReader(), r.getBookTitle(), r.getRating()))
                       .collect(toList());

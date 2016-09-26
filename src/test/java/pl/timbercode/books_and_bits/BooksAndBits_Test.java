@@ -13,23 +13,23 @@ public abstract class BooksAndBits_Test {
         registerReader("Annie");
 
         // when
-        Iterable<String> annieBooks = booksOf("Annie");
+        Iterable<String> annieBooks = booksReadBy("Annie");
 
         // then
         assertThat(annieBooks).isEmpty();
     }
 
     @Test
-    public void reader_can_read_books_and_rate_them() {
+    public void reader_can_rate_books() {
         // given
         registerReader("Annie");
 
         // when
-        addReaderBookRating("Annie", "Software Craftsmanship", 4);
-        addReaderBookRating("Annie", "Introduction to Algorithms", 3);
+        addBookRating("Annie", "Software Craftsmanship", 4);
+        addBookRating("Annie", "Introduction to Algorithms", 3);
 
         // then
-        assertThat(booksOf("Annie")).containsExactlyInAnyOrder(
+        assertThat(booksReadBy("Annie")).containsExactlyInAnyOrder(
                 "Software Craftsmanship [4/5]",
                 "Introduction to Algorithms [3/5]"
         );
@@ -41,12 +41,12 @@ public abstract class BooksAndBits_Test {
         registerReader("Annie");
 
         // when
-        addReaderBookRating("Annie", "Introduction to Algorithms", 1);
-        addReaderBookRating("Annie", "Software Craftsmanship", 2);
-        addReaderBookRating("Annie", "Implementing Domain-Driven Design", 3);
+        addBookRating("Annie", "Introduction to Algorithms", 1);
+        addBookRating("Annie", "Software Craftsmanship", 2);
+        addBookRating("Annie", "Implementing Domain-Driven Design", 3);
 
         // then
-        assertThat(booksOf("Annie")).containsExactly(
+        assertThat(booksReadBy("Annie")).containsExactly(
                 "Implementing Domain-Driven Design [3/5]",
                 "Introduction to Algorithms [1/5]",
                 "Software Craftsmanship [2/5]"
@@ -59,27 +59,27 @@ public abstract class BooksAndBits_Test {
         registerReader("Annie");
 
         // when
-        addReaderBookRating("Annie", "Software Craftsmanship", 5);
-        addReaderBookRating("Annie", "Software Craftsmanship", 5);
-        addReaderBookRating("Annie", "Software Craftsmanship", 5);
+        addBookRating("Annie", "Software Craftsmanship", 5);
+        addBookRating("Annie", "Software Craftsmanship", 5);
+        addBookRating("Annie", "Software Craftsmanship", 5);
 
         // then
-        assertThat(booksOf("Annie")).containsExactly(
+        assertThat(booksReadBy("Annie")).containsExactly(
                 "Software Craftsmanship [5/5]"
         );
     }
 
     @Test
-    public void newer_read_book_registration_overwrite_previous_rating() {
+    public void newer_book_rating_overwrite_previous_rating() {
         // given
         registerReader("Annie");
 
         // when
-        addReaderBookRating("Annie", "Software Craftsmanship", 5);
-        addReaderBookRating("Annie", "Software Craftsmanship", 1);
+        addBookRating("Annie", "Software Craftsmanship", 5);
+        addBookRating("Annie", "Software Craftsmanship", 1);
 
         // then
-        assertThat(booksOf("Annie")).containsExactly(
+        assertThat(booksReadBy("Annie")).containsExactly(
                 "Software Craftsmanship [1/5]"
         );
     }
@@ -91,16 +91,16 @@ public abstract class BooksAndBits_Test {
         registerReader("James");
 
         // when
-        addReaderBookRating("Annie", "Software Craftsmanship", 1);
-        addReaderBookRating("Annie", "Introduction to Algorithms", 2);
-        addReaderBookRating("James", "Software Craftsmanship", 5);
+        addBookRating("Annie", "Software Craftsmanship", 1);
+        addBookRating("Annie", "Introduction to Algorithms", 2);
+        addBookRating("James", "Software Craftsmanship", 5);
 
         // then
-        assertThat(booksOf("Annie")).containsExactlyInAnyOrder(
+        assertThat(booksReadBy("Annie")).containsExactlyInAnyOrder(
                 "Software Craftsmanship [1/5]",
                 "Introduction to Algorithms [2/5]"
         );
-        assertThat(booksOf("James")).containsExactlyInAnyOrder(
+        assertThat(booksReadBy("James")).containsExactlyInAnyOrder(
                 "Software Craftsmanship [5/5]"
         );
     }
@@ -110,7 +110,7 @@ public abstract class BooksAndBits_Test {
         // given
 
         // then
-        assertThatThrownBy(() -> addReaderBookRating("Annie", "Software Craftsmanship", 1))
+        assertThatThrownBy(() -> addBookRating("Annie", "Software Craftsmanship", 1))
                 .isInstanceOf(readerNotFoundException())
                 .hasMessage("There is no registered reader named 'Annie'");
     }
@@ -120,7 +120,7 @@ public abstract class BooksAndBits_Test {
         // given
 
         // then
-        assertThatThrownBy(() -> booksOf("Annie"))
+        assertThatThrownBy(() -> booksReadBy("Annie"))
                 .isExactlyInstanceOf(readerNotFoundException())
                 .hasMessage("There is no registered reader named 'Annie'");
     }
@@ -132,33 +132,36 @@ public abstract class BooksAndBits_Test {
         registerReader("James");
 
         // and
-        addReaderBookRating("Annie", "Implementing Domain-Driven Design", 1);
-        addReaderBookRating("Annie", "Introduction to Algorithms", 2);
-        addReaderBookRating("Annie", "Software Craftsmanship", 3);
-        addReaderBookRating("James", "Introduction to Algorithms", 5);
+        addBookRating("Annie", "Implementing Domain-Driven Design", 1);
+        addBookRating("Annie", "Introduction to Algorithms", 2);
+        addBookRating("Annie", "Software Craftsmanship", 3);
+        addBookRating("James", "Introduction to Algorithms", 5);
 
         // then
-        assertThat(findBooksAndRatings("Introduction to Algorithms")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("Introduction to Algorithms")).containsExactlyInAnyOrder(
                 "Annie: Introduction to Algorithms [2/5]",
                 "James: Introduction to Algorithms [5/5]"
         );
-        assertThat(findBooksAndRatings("Object-Oriented JavaScript")).isEmpty();
+        assertThat(findBooksWithTitleMatching("Object-Oriented JavaScript")).isEmpty();
     }
 
     @Test
     public void search_results_are_sorted_from_highest_rating_to_lowest() {
         // given
         registerReader("Annie");
+        registerReader("Hakim");
         registerReader("James");
 
         // and
-        addReaderBookRating("Annie", "Introduction to Algorithms", 2);
-        addReaderBookRating("James", "Introduction to Algorithms", 5);
+        addBookRating("Annie", "Introduction to Algorithms", 2);
+        addBookRating("Hakim", "Introduction to Algorithms", 1);
+        addBookRating("James", "Introduction to Algorithms", 5);
 
         // then
-        assertThat(findBooksAndRatings("Introduction to Algorithms")).containsExactly(
+        assertThat(findBooksWithTitleMatching("Introduction to Algorithms")).containsExactly(
                 "James: Introduction to Algorithms [5/5]",
-                "Annie: Introduction to Algorithms [2/5]"
+                "Annie: Introduction to Algorithms [2/5]",
+                "Hakim: Introduction to Algorithms [1/5]"
         );
     }
 
@@ -168,15 +171,15 @@ public abstract class BooksAndBits_Test {
         registerReader("Annie");
 
         // and
-        addReaderBookRating("Annie", "Working Effectively with Legacy Code", 3);
-        addReaderBookRating("Annie", "Clean Code", 3);
+        addBookRating("Annie", "Working Effectively with Legacy Code", 3);
+        addBookRating("Annie", "Clean Code", 3);
 
         // then
-        assertThat(findBooksAndRatings("Cod")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("Cod")).containsExactlyInAnyOrder(
                 "Annie: Clean Code [3/5]",
                 "Annie: Working Effectively with Legacy Code [3/5]"
         );
-        assertThat(findBooksAndRatings("n Cod")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("n Cod")).containsExactlyInAnyOrder(
                 "Annie: Clean Code [3/5]"
         );
     }
@@ -187,27 +190,27 @@ public abstract class BooksAndBits_Test {
         registerReader("Annie");
 
         // and
-        addReaderBookRating("Annie", "Working Effectively with Legacy Code", 3);
+        addBookRating("Annie", "Working Effectively with Legacy Code", 3);
 
         // then
-        assertThat(findBooksAndRatings("Eff")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("Eff")).containsExactlyInAnyOrder(
                 "Annie: Working Effectively with Legacy Code [3/5]"
         );
-        assertThat(findBooksAndRatings("eff")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("eff")).containsExactlyInAnyOrder(
                 "Annie: Working Effectively with Legacy Code [3/5]"
         );
-        assertThat(findBooksAndRatings("eFF")).containsExactlyInAnyOrder(
+        assertThat(findBooksWithTitleMatching("eFF")).containsExactlyInAnyOrder(
                 "Annie: Working Effectively with Legacy Code [3/5]"
         );
     }
 
     protected abstract void registerReader(String reader);
 
-    protected abstract Iterable<String> booksOf(String reader);
+    protected abstract Iterable<String> booksReadBy(String reader);
 
-    protected abstract void addReaderBookRating(String reader, String book, int rating);
+    protected abstract void addBookRating(String reader, String book, int rating);
 
-    protected abstract Iterable<String> findBooksAndRatings(String book);
+    protected abstract Iterable<String> findBooksWithTitleMatching(String bookTitleFragment);
 
     protected abstract Class<? extends Throwable> readerNotFoundException();
 

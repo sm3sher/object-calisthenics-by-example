@@ -41,7 +41,7 @@ class SearchResult implements Comparable<SearchResult> {
 
     @Override
     public int compareTo(SearchResult o) {
-        return rating - o.rating;
+        return o.rating - rating;
     }
 
 }
